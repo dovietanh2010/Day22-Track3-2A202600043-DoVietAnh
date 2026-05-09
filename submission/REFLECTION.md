@@ -82,7 +82,7 @@ _Interpret: where's the sweet spot for your data? Why? Does it match the deck's 
 
 _If you did **not** run the sweep:_ predict what you'd expect to see and write a 3-sentence hypothesis. (No points lost — but the muscle of forming a hypothesis is the value.)
 
-_Answer here._
+Tôi dự đoán rằng khi giảm **Beta xuống 0.05**, Reward Gap sẽ tăng cao hơn vì mô hình được tự do hơn trong việc tối ưu hóa theo dữ liệu preference, nhưng chắc chắn sẽ dẫn đến hiện tượng lặp từ nghiêm trọng hơn như đã thấy. Ngược lại, nếu tăng **Beta lên 0.5**, mô hình sẽ bám sát mô hình gốc (SFT) hơn, giúp giữ được sự ổn định và tránh lỗi lặp từ nhưng Win-rate so với SFT sẽ gần như không thay đổi. Giá trị **Beta = 0.1** hiện tại có vẻ là điểm cân bằng lý thuyết, nhưng với tập dữ liệu nhỏ 1000 mẫu, nó vẫn chưa đủ để ngăn chặn sự suy giảm chất lượng câu trả lời.
 
 ---
 
@@ -107,14 +107,14 @@ Score table from `data/eval/benchmark_results.json`:
 
 | Benchmark | SFT-only | SFT+DPO | Δ |
 |---|---:|---:|---:|
-| IFEval | _<...>_ | _<...>_ | _<...>_ |
-| GSM8K | _<...>_ | _<...>_ | _<...>_ |
-| MMLU (sampled) | _<...>_ | _<...>_ | _<...>_ |
-| AlpacaEval-lite | _<...>_ | _<...>_ | _<...>_ |
+| IFEval | _n/a_ | _n/a_ | _n/a_ |
+| GSM8K | _n/a_ | _n/a_ | _n/a_ |
+| MMLU (sampled) | _n/a_ | _n/a_ | _n/a_ |
+| AlpacaEval-lite | **0.500** | **0.275** | **-0.225** |
 
-_Interpret the deltas. Which benchmark went up most? Did GSM8K or MATH regress (alignment tax — see deck §8.1)? Did MMLU stay flat (factual knowledge preserved) or drop (catastrophic forgetting)? Was AlpacaEval-lite win-rate consistent with NB4 judge results, or divergent? Which benchmark surprised you, and what does it tell you about whether DPO did the alignment work you wanted?_
+Kết quả AlpacaEval-lite cho thấy sự sụt giảm đáng kể (**-22.5%**) của mô hình sau khi qua bước DPO. Điều này phản ánh chính xác vấn đề lặp từ (repetition) mà tôi đã quan sát được ở bước đánh giá Side-by-Side. Mô hình DPO thay vì học được cách trả lời hữu ích hơn, lại học được cách lặp lại các cụm từ an toàn hoặc các công thức nấu ăn một cách vô tận, dẫn đến việc bị AI Judge chấm điểm thấp.
 
-_Answer here. ≥ 150 words._
+Các chỉ số IFEval, GSM8K và MMLU không ghi nhận được điểm (NaN) do giới hạn phần cứng của Tier T4 và xung đột phiên bản của công cụ `lm-eval`. Tuy nhiên, chỉ riêng con số AlpacaEval cũng đủ để kết luận rằng với cấu hình 1 epoch và tập dữ liệu hiện tại, DPO đang gây ra hiện tượng "quá tải" về mặt format dẫn đến suy giảm chất lượng phản hồi. Để khắc phục "Alignment Tax" tiêu cực này, tôi cần tăng lượng dữ liệu preference chất lượng cao và thực hiện Beta-sweep để tìm ra điểm dừng tối ưu trước khi mô hình bị hỏng về mặt ngôn ngữ.
 
 ---
 
