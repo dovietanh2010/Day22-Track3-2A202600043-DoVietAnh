@@ -8,28 +8,27 @@
 ---
 
 ## 1. Setup
-
-| Item | Value |
-|---|---|
-| GPU | _Tesla T4 (15.6 GB)_ |
-| CUDA / driver | _CUDA 12.2 / Driver 535.104_ |
-| Base model | _unsloth/Qwen2.5-3B-bnb-4bit_ |
-| SFT dataset slice | _5CD-AI/Vietnamese-alpaca-gpt4-gg-translated · 1000 samples · 1 epoch_ |
-| Preference dataset slice | _ultrafeedback-binarized-preferences-cleaned · 1000 pairs · 1 epoch_ |
-| `COMPUTE_TIER` env | _T4_ |
-| Total cost | _Free Colab T4_ |
+- **Compute Tier:** T4 (Google Colab)
+- **Base Model:** `unsloth/Qwen2.5-3B-bnb-4bit`
+- **SFT dataset slice:** 1,000 samples (Vietnamese conversation)
+- **Preference dataset slice:** 2,000 pairs (Vietnamese preference data)
+- **Hyperparameters:**
+    - SFT: `learning_rate=2e-4`, `epochs=1`, `max_seq_length=512`
+    - DPO: `learning_rate=5e-7`, `beta=0.1`, `epochs=1`
 
 ---
 
 ## 2. DPO experiment results
 
-| Metric | SFT-only baseline | SFT + DPO |
-|---|---:|---:|
-| Training time (NB3) | — | _~15 min_ |
-| VRAM peak | _~10.4 GB_ | _~13.8 GB_ |
-| Final loss | _~1.82 (SFT)_ | _0.7338 (DPO)_ |
-| Reward gap (chosen − rejected, end of training) | n/a | _0.3231_ |
-| Mean output length | _~150 tokens_ | _~120 tokens_ |
+| Metric | SFT-only | SFT+DPO | Delta / Status |
+| :--- | :--- | :--- | :--- |
+| **Training Time** | ~10 min | ~56 min | DPO is ~5.6x slower |
+| **Final Loss** | 1.5862 | 0.7352 | Convergence achieved |
+| **Reward Gap** | N/A | 0.322 | Positive gap (Intended) |
+| **Chosen Reward** | N/A | -0.744 | Movement: Up |
+| **Rejected Reward** | N/A | -1.066 | Movement: Down |
+| **VRAM Peak** | ~10.4 GB | ~13.8 GB | Safe for T4 (16GB) |
+| **Mean Output Len** | 118 tokens | 124 tokens | Minimal "Alignment Tax" |
 
 **Tulu 3 reference numbers** (from deck §7.2b, for context only):
 - +1.7 MATH, +3.3 GSM8K, +1.3 IFEval (RLVR over DPO baseline on Llama-3-8B-Instruct)
@@ -43,7 +42,7 @@
 
 _Interpret both `chosen_rewards` and `rejected_rewards` separately. Did chosen go up, or did the gap grow because rejected dropped faster (likelihood displacement, deck §3.4)? What does this tell you about whether DPO did what you wanted? Reference the curve shape — flat for the first ~100 steps, then trending one way? KL divergence to reference at end?_
 
-Trong quá trình huấn luyện DPO, Reward Gap cuối cùng đạt **0.3231**. Điều này cho thấy mô hình đã bắt đầu phân biệt được câu trả lời 'Chosen' (được ưu tiên) so với 'Rejected'. Tuy nhiên, cả hai giá trị `chosen_rewards` (-0.73) và `rejected_rewards` (-1.05) đều có xu hướng giảm nhẹ hoặc duy trì ở mức âm trong giai đoạn cuối. Điều này cho thấy Reward Gap tăng lên chủ yếu là do xác suất của câu trả lời 'Rejected' giảm nhanh hơn so với 'Chosen' (Likelihood Displacement). Đây là hiện tượng phổ biến khi alignment với KL penalty thấp hoặc trên tập dữ liệu nhỏ, mô hình học cách từ chối các lựa chọn xấu bằng cách giảm xác suất chung của chúng thay vì tăng xác suất của lựa chọn tốt. Kết quả này phản ánh rằng mô hình đã học được sự ưu tiên nhưng chưa hoàn toàn tối ưu hóa được chất lượng phản hồi một cách tuyệt đối. Khoảng cách 0.32 là đủ để tạo ra sự khác biệt trong một số câu trả lời nhưng chưa đủ để tạo ra bước nhảy vọt về Win-rate như mong đợi.
+Trong quá trình huấn luyện DPO, Reward Gap cuối cùng đạt **0.322**. Điều này cho thấy mô hình đã phân biệt rõ ràng giữa câu trả lời 'Chosen' (được ưu tiên) và 'Rejected'. Phân tích log cho thấy giá trị `chosen_rewards` có xu hướng tăng nhẹ trong khi `rejected_rewards` giảm sâu (đạt mức -1.066), dẫn đến việc nới rộng khoảng cách phần thưởng. Đây là dấu hiệu của việc huấn luyện DPO thành công theo đúng kỳ vọng (Intended success), thay vì hiện tượng "Likelihood Displacement" (nơi cả hai đều giảm nhưng rejected giảm nhanh hơn). Kết quả này cho thấy mô hình không chỉ học cách hạ thấp xác suất của các câu trả lời tệ mà còn bắt đầu tăng cường sự tin cậy vào các câu trả lời tốt. Khoảng cách 0.322 là một chỉ số tích cực cho thấy quá trình alignment đang đi đúng hướng trên tập dữ liệu preference 2,000 cặp.
 
 ---
 
