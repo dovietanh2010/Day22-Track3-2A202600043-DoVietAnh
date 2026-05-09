@@ -21,6 +21,8 @@ __pycache__/
 # adapters/orpo/
 gguf/
 *.gguf
+*.safetensors
+
 # runs/
 # wandb/
 

@@ -64,7 +64,7 @@ Trong quá trình huấn luyện DPO, Reward Gap cuối cùng đạt **0.3231**.
 
 **Win/loss/tie summary:** _SFT+DPO wins 1/8, ties 5/8, loses 2/8_
 
-**Judge used:** _manual rubric_
+**Judge used:** _OpenAI_
 
 ---
 
@@ -120,11 +120,11 @@ _Answer here. ≥ 150 words._
 
 ## Bonus
 
-- [ ] Đã làm β-sweep (rigor add-on +6)
-- [ ] Đã push lên HuggingFace Hub (Submission Option B, +5)
-- [ ] Đã release GGUF với multiple quantizations (+3)
-- [ ] Đã link W&B run public (+2)
-- [ ] Đã làm cross-judge comparison (+4)
+- [x] Đã làm β-sweep (rigor add-on +6)
+- [x] Đã push lên HuggingFace Hub (Submission Option B, +5): https://huggingface.co/doanh123/lab22-dpo-vn
+- [x] Đã release GGUF với multiple quantizations (+3)
+- [x] Đã link W&B run public (+2)
+- [x] Đã làm cross-judge comparison (+4)
 - [ ] Đã làm `BONUS-CHALLENGE.md` provocation (ungraded — link `bonus/` folder)
 - [ ] Pair work với: _<tên đồng đội nếu có>_
 
@@ -132,4 +132,6 @@ _Answer here. ≥ 150 words._
 
 ## Điều ngạc nhiên nhất khi làm lab này
 
-_(Optional, 1–3 câu)_
+1. Mặc dù đã qua bước alignment DPO nhưng mô hình vẫn đồng ý cung cấp công thức chất nổ nếu người dùng khéo léo yêu cầu, cho thấy việc thiết lập rào cản an toàn (Safety Guardrails) thực sự khó khăn.
+2. Chỉ với 1000 mẫu dữ liệu preference và huấn luyện trong khoảng 15 phút trên T4, Reward Gap đã tăng lên rõ rệt (0.323), minh chứng cho hiệu quả của thuật toán DPO.
+3. Sau khi alignment, mô hình xuất hiện lỗi lặp lại các ký tự lạ hoặc tiếng Trung ở cuối câu trả lời bị từ chối, cho thấy sự nhạy cảm của mô hình đối với dữ liệu preference và tham số Beta.

@@ -1,4 +1,5 @@
 # Day 22 — DPO/ORPO Alignment Lab (Track 3)
+**Hugging Face Model:** [https://huggingface.co/doanh123/lab22-dpo-vn](https://huggingface.co/doanh123/lab22-dpo-vn)
 
 Lab cho **AICB-P2T3 · Ngày 22 · DPO/ORPO Alignment — From SFT to Preference Learning**.
 Build SFT-mini checkpoint → train DPO adapter → compare SFT-only vs SFT+DPO → merge + GGUF + serve.
