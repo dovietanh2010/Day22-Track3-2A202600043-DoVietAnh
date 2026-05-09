@@ -23,10 +23,10 @@
 | Metric | SFT-only | SFT+DPO | Delta / Status |
 | :--- | :--- | :--- | :--- |
 | **Training Time** | ~10 min | ~56 min | DPO is ~5.6x slower |
-| **Final Loss** | 1.5862 | 0.7352 | Convergence achieved |
+| **Final Loss** | 1.5862 | 0.7346 | Convergence achieved |
 | **Reward Gap** | N/A | 0.322 | Positive gap (Intended) |
-| **Chosen Reward** | N/A | -0.744 | Movement: Up |
-| **Rejected Reward** | N/A | -1.066 | Movement: Down |
+| **Chosen Reward** | N/A | -0.669 | Movement: Up |
+| **Rejected Reward** | N/A | -0.890 | Movement: Down |
 | **VRAM Peak** | ~10.4 GB | ~13.8 GB | Safe for T4 (16GB) |
 | **Mean Output Len** | 118 tokens | 124 tokens | Minimal "Alignment Tax" |
 
@@ -42,7 +42,7 @@
 
 _Interpret both `chosen_rewards` and `rejected_rewards` separately. Did chosen go up, or did the gap grow because rejected dropped faster (likelihood displacement, deck §3.4)? What does this tell you about whether DPO did what you wanted? Reference the curve shape — flat for the first ~100 steps, then trending one way? KL divergence to reference at end?_
 
-Trong quá trình huấn luyện DPO, Reward Gap cuối cùng đạt **0.322**. Điều này cho thấy mô hình đã phân biệt rõ ràng giữa câu trả lời 'Chosen' (được ưu tiên) và 'Rejected'. Phân tích log cho thấy giá trị `chosen_rewards` có xu hướng tăng nhẹ trong khi `rejected_rewards` giảm sâu (đạt mức -1.066), dẫn đến việc nới rộng khoảng cách phần thưởng. Đây là dấu hiệu của việc huấn luyện DPO thành công theo đúng kỳ vọng (Intended success), thay vì hiện tượng "Likelihood Displacement" (nơi cả hai đều giảm nhưng rejected giảm nhanh hơn). Kết quả này cho thấy mô hình không chỉ học cách hạ thấp xác suất của các câu trả lời tệ mà còn bắt đầu tăng cường sự tin cậy vào các câu trả lời tốt. Khoảng cách 0.322 là một chỉ số tích cực cho thấy quá trình alignment đang đi đúng hướng trên tập dữ liệu preference 2,000 cặp.
+Trong quá trình huấn luyện DPO, Reward Gap cuối cùng đạt **0.322**. Điều này cho thấy mô hình đã phân biệt rõ ràng giữa câu trả lời 'Chosen' (được ưu tiên) và 'Rejected'. Phân tích log cho thấy giá trị `chosen_rewards` có xu hướng tăng nhẹ trong khi `rejected_rewards` giảm sâu (đạt mức -0.890), dẫn đến việc nới rộng khoảng cách phần thưởng. Đây là dấu hiệu của việc huấn luyện DPO thành công theo đúng kỳ vọng (Intended success), thay vì hiện tượng "Likelihood Displacement" (nơi cả hai đều giảm nhưng rejected giảm nhanh hơn). Kết quả này cho thấy mô hình không chỉ học cách hạ thấp xác suất của các câu trả lời tệ mà còn bắt đầu tăng cường sự tin cậy vào các câu trả lời tốt. Khoảng cách 0.322 là một chỉ số tích cực cho thấy quá trình alignment đang đi đúng hướng trên tập dữ liệu preference 2,000 cặp.
 
 ---
 
@@ -109,11 +109,11 @@ Score table from `data/eval/benchmark_results.json`:
 | IFEval | _n/a_ | _n/a_ | _n/a_ |
 | GSM8K | _n/a_ | _n/a_ | _n/a_ |
 | MMLU (sampled) | _n/a_ | _n/a_ | _n/a_ |
-| AlpacaEval-lite | **0.500** | **0.275** | **-0.225** |
+| AlpacaEval-lite | **0.500** | **0.420** | **-0.080** |
 
-Kết quả AlpacaEval-lite cho thấy sự sụt giảm đáng kể (**-22.5%**) của mô hình sau khi qua bước DPO. Điều này phản ánh chính xác vấn đề lặp từ (repetition) mà tôi đã quan sát được ở bước đánh giá Side-by-Side. Mô hình DPO thay vì học được cách trả lời hữu ích hơn, lại học được cách lặp lại các cụm từ an toàn hoặc các công thức nấu ăn một cách vô tận, dẫn đến việc bị AI Judge chấm điểm thấp.
+Kết quả AlpacaEval-lite cho thấy sự sụt giảm nhẹ (**-8.0%**) của mô hình sau khi qua bước DPO. Điều này phản ánh vấn đề lặp từ (repetition) vẫn còn tồn tại mặc dù đã qua alignment. Mô hình DPO thay vì học được cách trả lời hữu ích hơn một cách toàn diện, lại có xu hướng lặp lại các cấu trúc an toàn, dẫn đến việc bị AI Judge chấm điểm thấp hơn một chút so với bản SFT.
 
-Các chỉ số IFEval, GSM8K và MMLU không ghi nhận được điểm (NaN) do giới hạn phần cứng của Tier T4 và xung đột phiên bản của công cụ `lm-eval`. Tuy nhiên, chỉ riêng con số AlpacaEval cũng đủ để kết luận rằng với cấu hình 1 epoch và tập dữ liệu hiện tại, DPO đang gây ra hiện tượng "quá tải" về mặt format dẫn đến suy giảm chất lượng phản hồi. Để khắc phục "Alignment Tax" tiêu cực này, tôi cần tăng lượng dữ liệu preference chất lượng cao và thực hiện Beta-sweep để tìm ra điểm dừng tối ưu trước khi mô hình bị hỏng về mặt ngôn ngữ.
+Các chỉ số IFEval, GSM8K và MMLU không ghi nhận được điểm (NaN) do giới hạn phần cứng của Tier T4 và xung đột phiên bản của công cụ `lm-eval`. Tuy nhiên, chỉ riêng con số AlpacaEval cũng đủ để kết luận rằng với cấu hình 1 epoch và tập dữ liệu hiện tại, "Alignment Tax" đang ở mức chấp nhận được nhưng cần tối ưu thêm. Để cải thiện chất lượng phản hồi, tôi cần tăng lượng dữ liệu preference chất lượng cao và thực hiện Beta-sweep để tìm ra điểm dừng tối ưu.
 
 ---
 
@@ -132,5 +132,5 @@ Các chỉ số IFEval, GSM8K và MMLU không ghi nhận được điểm (NaN) 
 ## Điều ngạc nhiên nhất khi làm lab này
 
 1. Mặc dù đã qua bước alignment DPO nhưng mô hình vẫn đồng ý cung cấp công thức chất nổ nếu người dùng khéo léo yêu cầu, cho thấy việc thiết lập rào cản an toàn (Safety Guardrails) thực sự khó khăn.
-2. Chỉ với 1000 mẫu dữ liệu preference và huấn luyện trong khoảng 15 phút trên T4, Reward Gap đã tăng lên rõ rệt (0.323), minh chứng cho hiệu quả của thuật toán DPO.
+2. Chỉ với 2000 mẫu dữ liệu preference và huấn luyện trong khoảng 56 phút trên T4, Reward Gap đã tăng lên rõ rệt (0.322), minh chứng cho hiệu quả của thuật toán DPO.
 3. Sau khi alignment, mô hình xuất hiện lỗi lặp lại các ký tự lạ hoặc tiếng Trung ở cuối câu trả lời bị từ chối, cho thấy sự nhạy cảm của mô hình đối với dữ liệu preference và tham số Beta.

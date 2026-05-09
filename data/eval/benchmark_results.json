@@ -21,10 +21,10 @@
     },
     "AlpacaEval-lite": {
       "sft": 0.5,
-      "dpo": 0.275
+      "dpo": 0.42
     }
   },
   "deltas": {
-    "AlpacaEval-lite": -0.22499999999999998
+    "AlpacaEval-lite": -0.08000000000000002
   }
 }
