@@ -65,7 +65,7 @@ Trong quá trình huấn luyện DPO, Reward Gap cuối cùng đạt **0.322**. 
 
 **Win/loss/tie summary:** _SFT+DPO wins 1/8, ties 6/8, loses 1/8_
 
-**Judge used:** _OpenAI_
+**Judge used:** _gpt-4o-mini (OpenAI)_
 
 ---
 
@@ -121,11 +121,11 @@ Các chỉ số IFEval, GSM8K và MMLU không ghi nhận được điểm (NaN) 
 
 ## Bonus
 
-- [x] Đã làm β-sweep (rigor add-on +6)
+- [ ] Đã làm β-sweep (rigor add-on +6)
 - [x] Đã push lên HuggingFace Hub (Submission Option B, +5): https://huggingface.co/doanh123/lab22-dpo-vn
 - [x] Đã release GGUF với multiple quantizations (+3) https://huggingface.co/doanh123/lab22-dpo-vn-guf
-- [x] Đã link W&B run public (+2)
-- [x] Đã làm cross-judge comparison (+4)
+- [ ] Đã link W&B run public (+2)
+- [ ] Đã làm cross-judge comparison (+4)
 - [ ] Đã làm `BONUS-CHALLENGE.md` provocation (ungraded — link `bonus/` folder)
 - [ ] Pair work với: _<tên đồng đội nếu có>_
 
