@@ -122,7 +122,7 @@ Các chỉ số IFEval, GSM8K và MMLU không ghi nhận được điểm (NaN) 
 
 - [x] Đã làm β-sweep (rigor add-on +6)
 - [x] Đã push lên HuggingFace Hub (Submission Option B, +5): https://huggingface.co/doanh123/lab22-dpo-vn
-- [x] Đã release GGUF với multiple quantizations (+3)
+- [x] Đã release GGUF với multiple quantizations (+3) https://huggingface.co/doanh123/lab22-dpo-vn-guf
 - [x] Đã link W&B run public (+2)
 - [x] Đã làm cross-judge comparison (+4)
 - [ ] Đã làm `BONUS-CHALLENGE.md` provocation (ungraded — link `bonus/` folder)
